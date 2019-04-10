@@ -2,6 +2,8 @@
 EECS 442 Final Project
 
 
+## Repo Structure
+
 
 Data Pipeline
 
