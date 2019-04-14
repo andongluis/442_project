@@ -17,7 +17,7 @@ from keras.regularizers import l2
 import yaml
 
 
-def cnn_model(in_shape, config_file="config/config.yml"):
+def cnn_model(in_shape, config_file="config/cnn.yml"):
 	# CNN model, no supplemental data
 	with open(config_file, 'r') as file:
 	    PARAMS = yaml.load(file)
@@ -67,3 +67,4 @@ def fc_model(in_shape, config_file="config/config.yml"):
 
 def multi_input_model(TBD):
 	# FC and CNN model, images and suplemental data
+	pass

@@ -10,6 +10,9 @@ class Dataset:
 	def __init__(self, flags):
 		'''
 		Initializes flags
+		Potential flags:
+		- "images": True/False
+		- "fc": True/False
 		'''
 
 	def set_images(self, images):
