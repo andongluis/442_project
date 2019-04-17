@@ -4,7 +4,7 @@ model_dir: "./models/"
 data_dir: "./data/"
 
 iterations: 30
-sgd_iter: 70
+sgd_iter: 30
 
 sgd_lr: 0.01
 sgd_momentum: 0.001
