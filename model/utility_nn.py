@@ -43,7 +43,7 @@ def nn_train(model, trainX, trainY, validX, validY, multi_input=False, config_fi
     print("--------Training Model---------")
 
     with open(config_file, 'r') as file:
-        PARAMS = yaml.load(file)
+        PARAMS = yaml.load(file, Loader=yaml.FullLoader)
 
     iterations = PARAMS["iterations"]
     sgd_iter = PARAMS["sgd_iter"]

@@ -16,7 +16,7 @@ class Dataset:
         '''
         self.flags = flags
 
-    def set_images(self, images):
+    def set_images(self, images_data):
         '''
         Sets image data.
         Should return error if flag indicates no images

@@ -38,7 +38,7 @@ def main():
     # Read data and have ready train, valid, test
     df = process_raw_csv("./batch_1.csv")
     X = df.drop("likes", axis=1)
-    Y = df["likes"].as_matrix()
+    Y = df["likes"].values
     # print(Y)
     # sys.exit(1)
     trainX, testX, trainY, testY = train_test_split(X,Y, test_size=0.25)
@@ -46,9 +46,9 @@ def main():
 
     # Preprocess data
     processor =  Preprocessor(flags, config_file="./config/preprocess.yml")
-    trainX = processor.fit(trainX)
-    validX = processor.transform(validX)
-    testX = processor.transform(testX)
+    trainX = processor.fit(trainX, path="./batch_1/")
+    validX = processor.transform(validX, path="./batch_1/")
+    testX = processor.transform(testX, path="./batch_1/")
 
     # Build models
     multi_input = False
@@ -71,8 +71,12 @@ def main():
         trainX = trainX.return_images()
         validX = validX.return_images()
         testX = testX.return_images()
+        print(trainX.shape[1:])
         model = models.cnn_model(trainX.shape[1:],  config_file="./config/cnn.yml")
 
+    print(trainX.shape)
+    print(validX.shape)
+    print(testX.shape)
     # Train models
     model, adam_hist, sgd_hist = nn_train(model, trainX, trainY, validX, validY, multi_input=multi_input, config_file="config/train.yml")    
 

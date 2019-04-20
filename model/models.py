@@ -10,6 +10,7 @@ from keras.layers import Add
 from keras.layers import BatchNormalization
 from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
+from keras.layers import Flatten
 
 from keras.layers.advanced_activations import PReLU
 from keras.regularizers import l2
@@ -22,7 +23,7 @@ import yaml
 def cnn_model(in_shape, config_file="config/cnn.yml"):
     # CNN model, no supplemental data
     with open(config_file, 'r') as file:
-        PARAMS = yaml.load(file)
+        PARAMS = yaml.load(file, Loader=yaml.FullLoader)
 
     drop_rate = PARAMS["drop_rate"]
     filters = PARAMS["filters"]
@@ -41,6 +42,7 @@ def cnn_model(in_shape, config_file="config/cnn.yml"):
         layer = cnn_set(layer, filters, kernel_size, drop_rate, act, b_norm, pool, pool_size)
 
     # flatten
+    layer = Flatten()(layer)
     for i in range(fc_depth):
         layer = fc_set(layer, fc_cells, drop_rate, act, b_norm)
 
@@ -50,7 +52,7 @@ def cnn_model(in_shape, config_file="config/cnn.yml"):
 def fc_model(in_shape, config_file="config/fc.yml"):
     # FC model, no images
     with open(config_file, 'r') as file:
-        PARAMS = yaml.load(file)
+        PARAMS = yaml.load(file, Loader=yaml.FullLoader)
 
     drop_rate = PARAMS["drop_rate"]
     act = PARAMS["act"]

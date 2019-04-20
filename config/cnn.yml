@@ -10,8 +10,8 @@ filters: 5
 kernel_size: 5
 act: "prelu"
 b_norm: True
-cnn_depth: 3
-fc_depth: 3
-fc_cells: 1000
+cnn_depth: 1
+fc_depth: 1
+fc_cells: 100
 pool: True
 pool_size: 2

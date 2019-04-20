@@ -25,7 +25,7 @@ def cnn_set(in_tensor, filters, kernel_size, drop_rate, act, b_norm, pool, pool_
         layer = PReLU()(layer)
     if pool:
         layer = MaxPooling2D(pool_size=pool_size, padding='valid')(layer)
-    layer = Dropout(drop_rate)(layer)
+    layer = Dropout(rate=drop_rate)(layer)
     return layer
 
 def fc_set(in_tensor, fc_cells, drop_rate, act, b_norm):
@@ -37,5 +37,5 @@ def fc_set(in_tensor, fc_cells, drop_rate, act, b_norm):
         layer = BatchNormalization()(layer)
     if act == "prelu":
         layer = PReLU()(layer)
-    layer = Dropout(drop_rate)(layer)
+    layer = Dropout(rate=drop_rate)(layer)
     return layer    

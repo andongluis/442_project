@@ -6,7 +6,7 @@ Note: This will only handle features, assumes labels are already removed from df
 from .dataset import Dataset
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 from PIL import Image
-
+import numpy as np
 
 import yaml
 
@@ -35,15 +35,16 @@ class Preprocessor:
         self.flags = flags
 
         with open(config_file, 'r') as file:
-            PARAMS = yaml.load(file)
+            PARAMS = yaml.load(file, Loader=yaml.FullLoader)
 
         self.normalize = PARAMS["normalize"]
         self.nlp_feats = PARAMS["nlp_feats"]
         self.downsize = PARAMS["downsize"]
         self.drop_cols = drop_cols
+        self.target_size = PARAMS["img_size"]
 
 
-    def fit(self, df):
+    def fit(self, df, path=""):
         '''
         Will learn preprocessing based off of this dataframe
 
@@ -57,22 +58,14 @@ class Preprocessor:
         if self.flags["images"]:
 
             # Process images
-            self.max_width = 0
-            self.max_height = 0
             X = []
             for filename in df["name"]:
-                img = load_img('data/train/cats/cat.0.jpg')  # this is a PIL image
-                if img.size[2] > self.max_height:
-                    self.max_height = img.size[2]
-                if img.size[1] > self.max_width:
-                    self.max_width = img.size[1]               
-                X.append(img)
-
-            # Make all images the same size
-            for idx, img in enumerate(X):
-                img = img = img.resize((self.max_width, self.max_height), Image.ANTIALIAS)
-                X[idx] = img_to_array(img) # this is a Numpy array
-
+                # Make all images the same size
+                img = load_img(path + filename, target_size=self.target_size)  # this is a PIL image
+                x = img_to_array(img) # this is a Numpy array
+                x = np.reshape(x, (x.shape[2], x.shape[1], x.shape[0]))
+                # print(x.shape)          
+                X.append(x)
 
             if self.downsize:
                 # Make images smaller
@@ -82,9 +75,11 @@ class Preprocessor:
 
             if self.normalize:
                 # normalize images
-                self.img_mean = np.mean(X, axis=(1,2), keepdims=True)
-                self.img_std = np.std(X, axis=(1,2), keepdims=True)
+                self.img_mean = np.mean(X, axis=(0, 2, 3), keepdims=True)
+                self.img_std = np.std(X, axis=(0, 2, 3), keepdims=True)
                 X = (X - self.img_mean) / self.img_std
+
+            print(X.shape)
 
             dataset.set_images(X)
 
@@ -113,7 +108,7 @@ class Preprocessor:
 
 
 
-    def transform(self, df):
+    def transform(self, df, path):
         '''
         Will preprocess the data in the dataframe
 
@@ -130,9 +125,11 @@ class Preprocessor:
             # Process images
             X = []
             for filename in df["name"]:
-                img = load_img('data/train/cats/cat.0.jpg')  # this is a PIL image
-                img = img.resize((self.max_width, self.max_height), Image.ANTIALIAS)
-                x = img_to_array(img)  # this is a Numpy array
+                # Make all images the same size
+                img = load_img(path + filename, target_size=self.target_size)  # this is a PIL image
+                x = img_to_array(img) # this is a Numpy array
+                x = np.reshape(x, (x.shape[2], x.shape[1], x.shape[0]))
+                # print(x.shape)          
                 X.append(x)
 
 
@@ -145,6 +142,8 @@ class Preprocessor:
             if self.normalize:
                 # normalize images
                 X = (X - self.img_mean) / self.img_std
+
+            print(X.shape)
 
             dataset.set_images(X)
 
