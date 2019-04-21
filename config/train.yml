@@ -3,15 +3,15 @@ model_dir: "./models/"
 
 data_dir: "./data/"
 
-iterations: 30
-sgd_iter: 30
+iterations: 10
+sgd_iter: 10
 
 sgd_lr: 0.01
 sgd_momentum: 0.001
 sgd_decay: 0.001
 sgd_nesterov: True
 
-val_split: 0.25
-steps_per_epoch: 20000
-validation_steps: 1000
+# val_split: 0.25
+# steps_per_epoch: 20000
+# validation_steps: 1000
 batch_size: 64

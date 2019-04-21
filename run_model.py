@@ -10,7 +10,7 @@ from utility.functions import plot_history, process_raw_csv, baseline
 import sys
 import yaml
 from sklearn.model_selection import train_test_split
-
+from pandas import DataFrame
 
 def main():
     # Read flags
@@ -36,19 +36,22 @@ def main():
         sys.exit(1)
 
     # Read data and have ready train, valid, test
-    df = process_raw_csv("./batch_1.csv")
+    df = DataFrame()
+    for filename in ["./batch_1.csv", "./batch_3.csv", "./batch_4.csv", "./batch_5.csv", "./batch_6.csv", "./batch_7.csv"]:
+        curr_df = process_raw_csv(filename)
+        df = df.append(curr_df)
     X = df.drop("likes", axis=1)
     Y = df["likes"].values
     # print(Y)
     # sys.exit(1)
-    trainX, testX, trainY, testY = train_test_split(X,Y, test_size=0.25)
-    trainX, validX, trainY, validY = train_test_split(trainX, trainY, test_size=0.25)
+    trainX, testX, trainY, testY = train_test_split(X,Y, test_size=0.20)
+    trainX, validX, trainY, validY = train_test_split(trainX, trainY, test_size=0.20)
 
     # Preprocess data
     processor =  Preprocessor(flags, config_file="./config/preprocess.yml")
-    trainX = processor.fit(trainX, path="./batch_1/")
-    validX = processor.transform(validX, path="./batch_1/")
-    testX = processor.transform(testX, path="./batch_1/")
+    trainX = processor.fit(trainX, path="./all_data/")
+    validX = processor.transform(validX, path="./all_data/")
+    testX = processor.transform(testX, path="./all_data/")
 
     # Build models
     multi_input = False

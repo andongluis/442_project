@@ -6,7 +6,7 @@ data_dir: "./data/"
 name: "dnn_model"
 
 drop_rate: 0.2
-act: "relu"
+act: "prelu"
 b_norm: True
 fc_depth: 4
 fc_cells: 100

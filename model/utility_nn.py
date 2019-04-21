@@ -52,8 +52,8 @@ def nn_train(model, trainX, trainY, validX, validY, multi_input=False, config_fi
     decay = PARAMS["sgd_decay"]
     nesterov = PARAMS["sgd_nesterov"]
 
-    steps_per_epoch = PARAMS["steps_per_epoch"]
-    validation_steps = PARAMS["validation_steps"]
+    # steps_per_epoch = PARAMS["steps_per_epoch"]
+    # validation_steps = PARAMS["validation_steps"]
     batch_size = PARAMS["batch_size"]
 
     # Fit and train
