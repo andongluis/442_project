@@ -79,7 +79,7 @@ class Preprocessor:
                 self.img_std = np.std(X, axis=(0, 2, 3), keepdims=True)
                 X = (X - self.img_mean) / self.img_std
 
-            print(X.shape)
+            # print(X.shape)
 
             dataset.set_images(X)
 

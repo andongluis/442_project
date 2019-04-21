@@ -37,15 +37,17 @@ def main():
 
     # Read data and have ready train, valid, test
     df = DataFrame()
-    for filename in ["./batch_1.csv", "./batch_3.csv", "./batch_4.csv", "./batch_5.csv", "./batch_6.csv", "./batch_7.csv"]:
+    files = ["./batch_1.csv"]
+    # files = ["./batch_1.csv", "./batch_3.csv", "./batch_4.csv", "./batch_5.csv", "./batch_6.csv", "./batch_7.csv"]
+    for filename in files:
         curr_df = process_raw_csv(filename)
         df = df.append(curr_df)
     X = df.drop("likes", axis=1)
     Y = df["likes"].values
     # print(Y)
     # sys.exit(1)
-    trainX, testX, trainY, testY = train_test_split(X,Y, test_size=0.20)
-    trainX, validX, trainY, validY = train_test_split(trainX, trainY, test_size=0.20)
+    trainX, testX, trainY, testY = train_test_split(X,Y, test_size=0.20, random_state=42)
+    trainX, validX, trainY, validY = train_test_split(trainX, trainY, test_size=0.20, random_state=42)
 
     # Preprocess data
     processor =  Preprocessor(flags, config_file="./config/preprocess.yml")
@@ -58,8 +60,11 @@ def main():
     if flags["fc"]:
         if flags["images"]:
             # Multi input
-            pass
             multi_input = True
+            fc_shape = trainX.return_fc().shape[1:]
+            images_shape = trainX.return_images().shape[1:]
+            model = models.multi_input_model(fc_shape, images_shape, config_file="./config/multi_input.yml",
+                                             fc_file="./config/fc.yml", cnn_file="./config/cnn.yml")
         else:
             # Only fc
             trainX = trainX.return_fc()
@@ -77,11 +82,8 @@ def main():
         print(trainX.shape[1:])
         model = models.cnn_model(trainX.shape[1:],  config_file="./config/cnn.yml")
 
-    print(trainX.shape)
-    print(validX.shape)
-    print(testX.shape)
     # Train models
-    model, adam_hist, sgd_hist = nn_train(model, trainX, trainY, validX, validY, multi_input=multi_input, config_file="config/train.yml")    
+    model, adam_hist, sgd_hist = nn_train(model, trainX, trainY, validX, validY, multi_input=multi_input, config_file="./config/train.yml")    
 
     
 

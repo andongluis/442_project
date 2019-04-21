@@ -11,6 +11,7 @@ from keras.layers import BatchNormalization
 from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
 from keras.layers import Flatten
+from keras.layers import Concatenate
 
 from keras.layers.advanced_activations import PReLU
 from keras.regularizers import l2
@@ -20,7 +21,7 @@ from .layers_nn import *
 import yaml
 
 
-def cnn_model(in_shape, config_file="config/cnn.yml"):
+def cnn_model(in_shape, config_file="config/cnn.yml", out_cells=1):
     # CNN model, no supplemental data
     with open(config_file, 'r') as file:
         PARAMS = yaml.load(file, Loader=yaml.FullLoader)
@@ -46,10 +47,10 @@ def cnn_model(in_shape, config_file="config/cnn.yml"):
     for i in range(fc_depth):
         layer = fc_set(layer, fc_cells, drop_rate, act, b_norm)
 
-    output = Dense(1, activation=None)(layer)
+    output = Dense(out_cells, activation=None)(layer)
     return Model(inputs=in_tensor, outputs=output)
 
-def fc_model(in_shape, config_file="config/fc.yml"):
+def fc_model(in_shape, config_file="config/fc.yml", out_cells=1):
     # FC model, no images
     with open(config_file, 'r') as file:
         PARAMS = yaml.load(file, Loader=yaml.FullLoader)
@@ -65,10 +66,31 @@ def fc_model(in_shape, config_file="config/fc.yml"):
     for i in range(fc_depth - 1):
         layer = fc_set(layer, fc_cells, drop_rate, act, b_norm)
 
-    output = Dense(1, activation=None)(layer)
+    output = Dense(out_cells, activation=None)(layer)
     return Model(inputs=in_tensor, outputs=output)
 
 
-def multi_input_model(TBD):
-    # FC and CNN model, images and suplemental data
-    pass
+def multi_input_model(fc_in_shape, images_in_shape, config_file="config/multi_input.yml",
+                      fc_file="config/fc.yml", cnn_file="config/cnn.yml"):
+    # FC and CNN model, images and supplemental data
+
+    with open(config_file, 'r') as file:
+        PARAMS = yaml.load(file, Loader=yaml.FullLoader)
+
+    drop_rate = PARAMS["drop_rate"]
+    act = PARAMS["act"]
+    b_norm = PARAMS ["b_norm"]
+    multi_depth = PARAMS["fc_depth"]
+    fc_cells = PARAMS["fc_cells"]
+    out_cells = PARAMS["out_cells"]
+
+    fc = fc_model(fc_in_shape, config_file=fc_file, out_cells=out_cells)
+    cnn = cnn_model(images_in_shape, config_file=cnn_file, out_cells=out_cells)
+
+    layer = Concatenate()([fc.output, cnn.output])
+
+    for i in range(multi_depth):
+        layer = fc_set(layer, fc_cells, drop_rate, act, b_norm)
+
+    output = Dense(1, activation=None)(layer)
+    return Model(inputs=[fc.input, cnn.input], outputs=output)

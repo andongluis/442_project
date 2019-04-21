@@ -28,7 +28,9 @@ def multi_input_generator(trainX, trainY, batch_size):
 def nn_stats(clf, trainX, trainY, multi_input=False, name="Train"):
 
     if multi_input:
-        y_pred = clf.predict(trainX)
+        train_images = trainX.return_images()
+        train_fc = trainX.return_fc()
+        y_pred = clf.predict([train_fc, train_images])
     else:
         y_pred = clf.predict(trainX)
 
@@ -67,12 +69,21 @@ def nn_train(model, trainX, trainY, validX, validY, multi_input=False, config_fi
         #                                 validation_steps=validation_steps, class_weight=None, max_queue_size=10, 
         #                                 workers=4, use_multiprocessing=True, shuffle=True, initial_epoch=0)
 
+        train_images = trainX.return_images()
+        train_fc = trainX.return_fc()
+        valid_images = validX.return_images()
+        valid_fc = validX.return_fc()
+
+        adam_hist = model.fit([train_fc, train_images], trainY,  batch_size=batch_size, epochs=iterations,
+                             verbose=1, callbacks=callbacks_list, validation_data=([valid_fc, valid_images], validY))
         print("Gonna change to sgd now")
 
         sgd = SGD(lr=lr, momentum=momentum, decay=decay, nesterov=nesterov)
 
         model.compile(optimizer=sgd, loss=mean_absolute_error)
 
+        sgd_hist = model.fit([train_fc, train_images], trainY,  batch_size=batch_size, epochs=sgd_iter,
+                             verbose=1, callbacks=callbacks_list, validation_data=([valid_fc, valid_images], validY))
         # sgd_hist = model.fit_generator(multi_input_generator(trainX, trainY, batch_size), steps_per_epoch=steps_per_epoch, 
         #                                 epochs=sgd_iter, verbose=2, 
         #                                 callbacks=callbacks_list, validation_data=multi_input_generator(validX, validY, batch_size),

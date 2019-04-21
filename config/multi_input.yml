@@ -1,0 +1,13 @@
+
+model_dir: "./models/"
+
+data_dir: "./data/"
+
+name: "multi_input_model"
+
+out_cells: 100
+drop_rate: 0.2
+act: "prelu"
+b_norm: True
+fc_depth: 1
+fc_cells: 100
