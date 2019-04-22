@@ -6,12 +6,12 @@ data_dir: "./data/"
 name: "dnn_model"
 
 drop_rate: 0.2
-filters: 5
+filters: 10
 kernel_size: 5
 act: "prelu"
 b_norm: True
-cnn_depth: 1
-fc_depth: 1
-fc_cells: 100
+cnn_depth: 3
+fc_depth: 3
+fc_cells: 500
 pool: True
 pool_size: 2

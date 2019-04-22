@@ -2,6 +2,13 @@
 Main script for doing stuff
 Should be able to just call this function and set some flags
 '''
+
+import os
+
+PATH = "./442_project/"
+PATH = "/content/drive/My Drive/final_442/Code/"
+os.chdir(PATH)
+
 from model import models
 from model.utility_nn import nn_train, nn_stats
 from processing.preprocessor import Preprocessor
@@ -37,23 +44,27 @@ def main():
 
     # Read data and have ready train, valid, test
     df = DataFrame()
-    files = ["./batch_1.csv"]
-    # files = ["./batch_1.csv", "./batch_3.csv", "./batch_4.csv", "./batch_5.csv", "./batch_6.csv", "./batch_7.csv"]
+    # files = ["./batch_1.csv"]
+    files = ["./batch_1.csv", "./batch_3.csv", "./batch_4.csv", "./batch_5.csv", "./batch_6.csv", "./batch_7.csv", "./batch_8.csv"]
     for filename in files:
         curr_df = process_raw_csv(filename)
         df = df.append(curr_df)
     X = df.drop("likes", axis=1)
     Y = df["likes"].values
+
+    del df
     # print(Y)
     # sys.exit(1)
     trainX, testX, trainY, testY = train_test_split(X,Y, test_size=0.20, random_state=42)
     trainX, validX, trainY, validY = train_test_split(trainX, trainY, test_size=0.20, random_state=42)
 
+    del X
+
     # Preprocess data
     processor =  Preprocessor(flags, config_file="./config/preprocess.yml")
-    trainX = processor.fit(trainX, path="./all_data/")
-    validX = processor.transform(validX, path="./all_data/")
-    testX = processor.transform(testX, path="./all_data/")
+    trainX = processor.fit(trainX, zip_file="./all_data.zip")
+    validX = processor.transform(validX, zip_file="./all_data.zip")
+    testX = processor.transform(testX, zip_file="./all_data.zip")
 
     # Build models
     multi_input = False
@@ -84,8 +95,6 @@ def main():
 
     # Train models
     model, adam_hist, sgd_hist = nn_train(model, trainX, trainY, validX, validY, multi_input=multi_input, config_file="./config/train.yml")    
-
-    
 
     # Give results
     y_mean = baseline(trainY, name="Train")

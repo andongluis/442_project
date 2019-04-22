@@ -24,7 +24,7 @@ def cnn_set(in_tensor, filters, kernel_size, drop_rate, act, b_norm, pool, pool_
     if act == "prelu":
         layer = PReLU()(layer)
     if pool:
-        layer = MaxPooling2D(pool_size=pool_size, padding='valid')(layer)
+        layer = MaxPooling2D(pool_size=pool_size, padding='same')(layer)
     layer = Dropout(rate=drop_rate)(layer)
     return layer
 

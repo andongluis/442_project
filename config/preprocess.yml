@@ -2,4 +2,4 @@
 normalize: True
 nlp_feats: False
 downsize: False
-img_size: !!python/tuple [200,200]
+img_size: !!python/tuple [150,150]

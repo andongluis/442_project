@@ -9,6 +9,9 @@ from PIL import Image
 import numpy as np
 
 import yaml
+from zipfile import ZipFile
+import io
+import gc
 
 class Preprocessor:
 
@@ -44,7 +47,7 @@ class Preprocessor:
         self.target_size = PARAMS["img_size"]
 
 
-    def fit(self, df, path=""):
+    def fit(self, df, zip_file="./all_data.zip"):
         '''
         Will learn preprocessing based off of this dataframe
 
@@ -56,21 +59,24 @@ class Preprocessor:
         '''
         dataset = Dataset(self.flags)
         if self.flags["images"]:
-
             # Process images
             X = []
-            for filename in df["name"]:
-                # Make all images the same size
-                img = load_img(path + filename, target_size=self.target_size)  # this is a PIL image
-                x = img_to_array(img) # this is a Numpy array
-                x = np.reshape(x, (x.shape[2], x.shape[1], x.shape[0]))
-                # print(x.shape)          
-                X.append(x)
+            with ZipFile(zip_file) as archive:
+                for filename in df["name"]:
+                    imgdata = archive.read("all_data/" + filename)
+                    img = Image.open(io.BytesIO(imgdata)).resize(self.target_size)
+                    # img = Image.frombytes(mode="RGB", size=self.target_size, data=imgdata, decoder_name="raw")
+                    # img = load_img(path + filename, target_size=self.target_size)  # this is a PIL image
+                    x = img_to_array(img) # this is a Numpy array
+                    x = np.reshape(x, (x.shape[2], x.shape[1], x.shape[0]))
+                    # print(x.shape)          
+                    X.append(x)
 
             if self.downsize:
                 # Make images smaller
                 pass
 
+            gc.collect()
             X = np.asarray(X)
 
             if self.normalize:
@@ -79,7 +85,7 @@ class Preprocessor:
                 self.img_std = np.std(X, axis=(0, 2, 3), keepdims=True)
                 X = (X - self.img_mean) / self.img_std
 
-            # print(X.shape)
+            print(X.shape)
 
             dataset.set_images(X)
 
@@ -108,7 +114,7 @@ class Preprocessor:
 
 
 
-    def transform(self, df, path):
+    def transform(self, df, zip_file="./all_data.zip"):
         '''
         Will preprocess the data in the dataframe
 
@@ -124,19 +130,23 @@ class Preprocessor:
 
             # Process images
             X = []
-            for filename in df["name"]:
-                # Make all images the same size
-                img = load_img(path + filename, target_size=self.target_size)  # this is a PIL image
-                x = img_to_array(img) # this is a Numpy array
-                x = np.reshape(x, (x.shape[2], x.shape[1], x.shape[0]))
-                # print(x.shape)          
-                X.append(x)
+            with ZipFile(zip_file) as archive:
+                for filename in df["name"]:
+                    imgdata = archive.read("all_data/" + filename)
+                    img = Image.open(io.BytesIO(imgdata)).resize(self.target_size)
+                    # img = Image.frombytes(mode="RGB", size=self.target_size, data=imgdata, decoder_name="raw")
+                    # img = load_img(path + filename, target_size=self.target_size)  # this is a PIL image
+                    x = img_to_array(img) # this is a Numpy array
+                    x = np.reshape(x, (x.shape[2], x.shape[1], x.shape[0]))
+                    # print(x.shape)          
+                    X.append(x)
 
 
             if self.downsize:
                 # Make images smaller
                 pass
 
+            gc.collect()
             X = np.asarray(X)
 
             if self.normalize:
