@@ -94,3 +94,42 @@ def multi_input_model(fc_in_shape, images_in_shape, config_file="config/multi_in
 
     output = Dense(1, activation=None)(layer)
     return Model(inputs=[fc.input, cnn.input], outputs=output)
+
+def bagodwords(in_shape, config_file="config/fc.yml", out_cells=1):
+    with open(config_file, 'r') as file:
+        PARAMS = yaml.load(file, Loader=yaml.FullLoader)
+    
+    drop_rate = PARAMS["drop_rate"]
+    filters = PARAMS["filters"]
+    kernel_size = PARAMS["kernel_size"]
+    act = PARAMS["act"]
+    b_norm = PARAMS ["b_norm"]
+    cnn_depth = PARAMS["cnn_depth"]
+    fc_depth = PARAMS["fc_depth"]
+    fc_cells = PARAMS["fc_cells"]
+    pool = PARAMS["pool"]
+    pool_size = PARAMS["pool_size"]
+    tokenize = text.Tokenizer(num_words=50)
+    tokenize.fit_on_texts(train_posts)
+    x_train = tokenize.texts_to_matrix(train_posts)
+    encoder = LabelBinarizer()
+    encoder.fit(train_tags)
+    y_train = encoder.transform(train_tags)
+    y_test = encoder.transform(test_tags)
+    in_tensor = Sequential()
+    in_tensor.add(Dense(512, input_shape=(in_shape,)))
+    in_tensor.add(Activation('relu'))
+
+    in_tensor.add(Dense(num_labels))
+    in_tensor.add(Activation('softmax'))
+    in_tensor.compile(loss='categorical_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'])
+    history = in_tensor.fit(x_train, y_train,
+                        batch_size=batch_size,
+                        epochs=20,
+                        verbose=1,
+                        validation_split=0.1)
+
+    score = in_tensor.evaluate(x_test, y_test,
+                           batch_size=batch_size, verbose=1)
